@@ -1,11 +1,14 @@
-# backend/app.py
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from ultralytics import YOLO
 import cv2
 import os
 
 app = FastAPI()
+
+# Serve files from the "outputs" directory
+app.mount("/outputs", StaticFiles(directory="outputs"), name="outputs")
 
 # Load YOLOv8 model
 model = YOLO("yolov8n.pt")  # Use the appropriate YOLOv8 model
@@ -13,6 +16,10 @@ model = YOLO("yolov8n.pt")  # Use the appropriate YOLOv8 model
 @app.post("/process-video")
 async def process_video(file: UploadFile = File(...)):
     try:
+        # Validate video format
+        if not file.filename.lower().endswith(('.mp4', '.avi', '.mov')):
+            return JSONResponse({"error": "Invalid video format. Only .mp4, .avi, .mov are supported."}, status_code=400)
+
         # Save the uploaded video
         video_path = f"uploads/{file.filename}"
         os.makedirs("uploads", exist_ok=True)
@@ -44,10 +51,13 @@ async def process_video(file: UploadFile = File(...)):
 
         cap.release()
         out.release()
+        
+        print(f"Processed video saved to: {output_path}")
 
+        # Return the correct output path URL
         return JSONResponse(
-            {"message": "Video processed successfully", "output_path": output_path}
-            
+            {"message": "Video processed successfully", "output_path": f"/outputs/{file.filename}"}
         )
+    
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)

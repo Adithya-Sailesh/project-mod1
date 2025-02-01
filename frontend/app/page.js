@@ -6,6 +6,7 @@ import { useState, useRef } from "react";
 export default function Home() {
   const [uploading, setUploading] = useState(false); // Track upload status
   const [selectedFile, setSelectedFile] = useState(null); // Store the selected file
+  const [outputVideoUrl, setOutputVideoUrl] = useState(null); // Store the output video URL
   const fileInputRef = useRef(null); // Reference to the file input
 
   // Handle file selection
@@ -23,7 +24,7 @@ export default function Home() {
       return;
     }
 
-    setUploading(true); // Start uploading
+    setUploading(true);
 
     const formData = new FormData();
     formData.append("file", selectedFile);
@@ -43,12 +44,18 @@ export default function Home() {
 
       const data = await response.json();
       console.log(data);
+
+      // Set the output video URL
+      if (data.output_path) {
+        setOutputVideoUrl(`http://127.0.0.1:5000/${data.output_path}`);
+      }
+
       alert("Video uploaded and processed successfully!");
     } catch (error) {
       console.error("Error uploading file:", error);
       alert("Failed to upload video. Please try again.");
     } finally {
-      setUploading(false); // Stop uploading
+      setUploading(false);
     }
   };
 
@@ -100,6 +107,18 @@ export default function Home() {
       {selectedFile && (
         <p style={{ marginTop: "20px" }}>Selected file: {selectedFile.name}</p>
       )}
+      {outputVideoUrl && (
+        <div style={{ marginTop: "20px" }}>
+          <h2>Processed Video</h2>
+          <video controls width="600" style={{ marginTop: "10px" }}>
+            <source src={outputVideoUrl} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        
+      )
+      
+      }
     </div>
   );
 }
