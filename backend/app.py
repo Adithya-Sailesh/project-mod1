@@ -36,7 +36,7 @@ async def process_video(file: UploadFile = File(...)):
             cap.get(cv2.CAP_PROP_FPS),
             (int(cap.get(3)), int(cap.get(4))),
         )
-
+        
         while cap.isOpened():
             ret, frame = cap.read()
             if not ret:
@@ -47,11 +47,13 @@ async def process_video(file: UploadFile = File(...)):
             annotated_frame = results[0].plot()
 
             # Save the annotated frame
+            cv2.imshow('Vehicle Detection', annotated_frame)
+            # cv2.waitKey(1)
             out.write(annotated_frame)
 
         cap.release()
         out.release()
-        
+        cv2.destroyAllWindows()
         print(f"Processed video saved to: {output_path}")
 
         # Return the correct output path URL
