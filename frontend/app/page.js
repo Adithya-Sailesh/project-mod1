@@ -50,7 +50,7 @@ export default function Home() {
         setOutputVideoUrl(`http://127.0.0.1:5000/${data.output_path}`);
       }
 
-      alert("Video uploaded and processed successfully!");
+      alert("Video uploaded and processed successfully complete!");
     } catch (error) {
       console.error("Error uploading file:", error);
       alert("Failed to upload video. Please try again.");
