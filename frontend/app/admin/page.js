@@ -3,21 +3,23 @@
 import { useState, useRef, useEffect } from "react";
 
 export default function Home() {
-  const [uploading, setUploading] = useState(false); // Track upload status
-  const [selectedFile, setSelectedFile] = useState(null); // Store the selected file
-  const [outputVideoUrl, setOutputVideoUrl] = useState(""); // Store the output video URL
-  const fileInputRef = useRef(null); // Reference to the file input
-  const videoRef = useRef(null); // Reference to the video element
+  const [uploading, setUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [outputVideoUrl, setOutputVideoUrl] = useState("");
+  const [liveFrame, setLiveFrame] = useState(null);
+  const [detectedNumbers, setDetectedNumbers] = useState([]);
+  const [validNumbers, setValidNumbers] = useState([]); // Store valid number plates
+  const fileInputRef = useRef(null);
+  const videoRef = useRef(null);
 
-  // Handle file selection
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       setSelectedFile(file);
+      
     }
   };
 
-  // Handle file upload
   const handleUpload = async () => {
     if (!selectedFile) {
       alert("Please select a video file first!");
@@ -35,7 +37,6 @@ export default function Home() {
         body: formData,
       });
 
-      // Check if the response is JSON
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
         const text = await response.text();
@@ -45,11 +46,10 @@ export default function Home() {
       const data = await response.json();
       console.log(data);
 
-      // Set the output video URL
       if (data.output_path) {
         const videoUrl = `http://127.0.0.1:5000${data.output_path}`;
         setOutputVideoUrl(videoUrl);
-        console.log("Output video URL:", videoUrl); 
+        console.log("Output video URL:", videoUrl);
       }
 
       alert("Video uploaded and processed successfully!");
@@ -61,7 +61,6 @@ export default function Home() {
     }
   };
 
-  // Automatically play the video once it has loaded
   useEffect(() => {
     if (outputVideoUrl && videoRef.current) {
       const handleLoadedData = () => {
@@ -76,7 +75,35 @@ export default function Home() {
     }
   }, [outputVideoUrl]);
 
-  // Trigger file input when the button is clicked
+  useEffect(() => {
+    const socket = new WebSocket("ws://127.0.0.1:5000/ws");
+
+    socket.onmessage = (event) => {
+      if (event.data instanceof Blob) {
+        const reader = new FileReader();
+        reader.onload = () => setLiveFrame(reader.result);
+        reader.readAsDataURL(event.data);
+      } else {
+        try {
+          const jsonData = JSON.parse(event.data);
+          if (jsonData.detected_numbers) {
+            setDetectedNumbers(jsonData.detected_numbers);
+          }
+          if (jsonData.valid_numbers) {
+            setValidNumbers(jsonData.valid_numbers); // Update valid number plates
+          }
+        } catch (err) {
+          console.error("Error parsing WebSocket message:", err);
+        }
+      }
+    };
+
+    socket.onerror = (error) => console.error("WebSocket Error:", error);
+    socket.onclose = () => console.log("WebSocket Closed");
+
+    return () => socket.close();
+  }, []);
+
   const handleButtonClick = () => {
     fileInputRef.current.click();
   };
@@ -90,7 +117,7 @@ export default function Home() {
         accept="video/*"
         onChange={handleFileChange}
         ref={fileInputRef}
-        style={{ display: "none" }} // Hide the default file input
+        style={{ display: "none" }}
       />
       <button
         onClick={handleButtonClick}
@@ -122,9 +149,68 @@ export default function Home() {
       >
         {uploading ? "Uploading..." : "Upload Video"}
       </button>
+
       {selectedFile && (
         <p style={{ marginTop: "20px" }}>Selected file: {selectedFile.name}</p>
       )}
+
+      {/* Live Processing, Detected Number Plates, and Valid Plates */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "40px",
+          marginTop: "30px",
+        }}
+      >
+        {/* Live Processed Frame (Left) */}
+        <div>
+          <h2>Live Processing</h2>
+          {liveFrame ? (
+            <img
+              src={liveFrame}
+              alt="Live Processed Frame"
+              style={{ width: "400px", height: "auto", border: "1px solid black" }}
+            />
+          ) : (
+            <p>No live frames yet</p>
+          )}
+        </div>
+
+        {/* Detected Number Plates (Center) */}
+        <div>
+          <h2>Detected Number Plates</h2>
+          <ul style={{ textAlign: "left" }}>
+            {detectedNumbers.length > 0 ? (
+              detectedNumbers.map((plate, index) => (
+                <li key={index} style={{ fontSize: "18px" }}>
+                  {plate}
+                </li>
+              ))
+            ) : (
+              <p>No number plates detected yet</p>
+            )}
+          </ul>
+        </div>
+
+        {/* Valid Number Plates (Right) */}
+        <div>
+          <h2 style={{ color: "green" }}>Valid Number Plates</h2>
+          <ul style={{ textAlign: "left", fontSize: "18px", color: "green" }}>
+            {validNumbers.length > 0 ? (
+              validNumbers.map((plate, index) => (
+                <li key={index} style={{ fontWeight: "bold" }}>
+                  ✅ {plate} - Verified
+                </li>
+              ))
+            ) : (
+              <p>No valid plates detected yet</p>
+            )}
+          </ul>
+        </div>
+      </div>
+
+      {/* Processed Video */}
       {outputVideoUrl && (
         <div style={{ marginTop: "20px" }}>
           <h2>Processed Video</h2>
@@ -133,8 +219,7 @@ export default function Home() {
             Your browser does not support the video tag.
           </video>
         </div>
-      )
-    }
+      )}
     </div>
   );
 }
