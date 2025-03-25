@@ -28,6 +28,7 @@ export default function RegisteredUsers() {
             <th className="p-2">Email</th>
             <th className="p-2">Vehicle Number</th>
             <th className="p-2">Balance</th>
+            <th className="p-2">Balcklisted</th>
           </tr>
         </thead>
         <tbody>
@@ -37,6 +38,7 @@ export default function RegisteredUsers() {
               <td className="p-2">{user.email}</td>
               <td className="p-2">{user.vehicleNumber}</td>
               <td className="p-2">{user.balance}</td>
+              <td className="p-2">{user.balackListed ? "true":"false"}</td>
             </tr>
           ))}
         </tbody>

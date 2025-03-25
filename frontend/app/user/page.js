@@ -44,7 +44,7 @@ export default function Profile() {
               <p className="font-semibold text-gray-700">Vehicle: <span className="text-blue-500">{userData.vehicle}</span></p>
               <p className="font-semibold text-gray-700">Number: <span className="text-red-500">{userData.vehicleNumber}</span></p>
               <p className="font-semibold text-gray-700">Balance: <span className="text-red-500">{userData.balance}</span></p>
-              <p className="font-semibold text-gray-700"> {userData.blacklisted ? "Blacklisted":"Clear"}<span className="text-red-500">{userData.blacklisted}</span></p>
+              <p className="font-semibold text-gray-700"> {userData.blacklisted ? "Blacklisted":"Clear"}</p>
             </div>
             <button
               onClick={() => router.push("/recharge")}
