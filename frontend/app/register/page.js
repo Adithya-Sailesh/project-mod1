@@ -54,6 +54,8 @@ export default function Register() {
         vehicleNumber,
         profileImage: imageUrl, // Store image URL as profile icon
         balance: 0,
+        blacklisted: false,
+        blacklistCount:0,
       });
 
       alert("User Created");
