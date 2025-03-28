@@ -32,6 +32,7 @@ export default function BlacklistedUsers() {
             <th className="p-2">Actions</th>
           </tr>
         </thead>
+        {blacklistedUsers.length === 0 && <h1 className="font-bold text-red-500 justify-center">No Blacklisted Users</h1>}
         <tbody>
           {blacklistedUsers.map(user => (
             <tr key={user.id} className="border-b">

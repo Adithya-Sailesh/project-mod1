@@ -29,6 +29,12 @@ export default function Home() {
         >
           Admin Panel
         </button>
+        <button 
+          onClick={() => router.push("/admin/transactions")} 
+          style={{ padding: "10px 20px", fontSize: "16px", cursor: "pointer", backgroundColor: "#0070f3", color: "white", border: "none", borderRadius: "5px" }}
+        >
+          Transaction History
+        </button>
       </nav>
      
       

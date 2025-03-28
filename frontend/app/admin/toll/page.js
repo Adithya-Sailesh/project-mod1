@@ -2,15 +2,45 @@
 
 import { useEffect, useState } from "react";
 import { db } from "../../firebaseConfig";
-import { collection, query, orderBy, onSnapshot, VectorValue } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot, doc, setDoc, getDoc, updateDoc, arrayUnion, Timestamp } from "firebase/firestore";
 
 export default function TollCollection() {
   const [validPlates, setValidPlates] = useState([]);
-  const [vehicleData, setVehicleData] = useState({}); // Store lookup results
+  const [vehicleData, setVehicleData] = useState({});
   const [loading, setLoading] = useState(true);
-  const [tollFee, setTollFee] = useState(50); // Flat toll fee
+  const [tollFee, setTollFee] = useState(50);
+  const [sessionId, setSessionId] = useState(null);
+
+  // Initialize a new session when a new video is processed
+  const initializeSession = async () => {
+    const newSessionId = Timestamp.now().toMillis().toString(); // Use server timestamp as session ID
+
+    try {
+      const sessionRef = doc(db, "toll_transactions", newSessionId);
+      const sessionSnap = await getDoc(sessionRef);
+
+      if (!sessionSnap.exists()) {
+        await setDoc(sessionRef, {
+          id: newSessionId,
+          timestamp: Timestamp.now(),
+          totalVehicles: 0,
+          totalCollected: 0,
+          transactions: []
+        });
+        console.log("New session created with ID:", newSessionId);
+      } else {
+        console.log("Existing session found:", newSessionId);
+      }
+
+      setSessionId(newSessionId);
+    } catch (error) {
+      console.error("Error initializing session:", error);
+    }
+  };
 
   useEffect(() => {
+    initializeSession();
+
     // Fetch valid plates in real-time
     const validPlatesCollection = collection(db, "valid_plates");
     const q = query(validPlatesCollection, orderBy("timestamp", "desc"));
@@ -21,7 +51,7 @@ export default function TollCollection() {
         const plates = latestEntry.plates || [];
 
         setValidPlates(plates);
-        fetchVehicleDetails(plates); // Fetch owner & balance
+        fetchVehicleDetails(plates);
       }
       setLoading(false);
     });
@@ -29,7 +59,7 @@ export default function TollCollection() {
     return () => unsubscribe();
   }, []);
 
-  // Fetch owner & balance from lookup API
+  // Fetch vehicle owner & balance details
   const fetchVehicleDetails = async (plates) => {
     let details = {};
     for (const plate of plates) {
@@ -45,63 +75,77 @@ export default function TollCollection() {
       }
     }
     setVehicleData(details);
-    console.log("Updated vehicleData:", details); // Corrected console log
   };
 
-  
+  // Process toll fee for a vehicle
   const processFee = async (vehicleNumber) => {
+    if (!sessionId) {
+      alert("Session ID not found! Try reloading the page.");
+      return;
+    }
+
     try {
-      // Ensure vehicleData is up-to-date
       const vehicle = vehicleData[vehicleNumber];
-  
-      console.log("Processing fee for:", vehicleNumber, "Vehicle Data:", vehicle); // Debugging
-  
+
       if (!vehicle || vehicle.owner === "Not Registered") {
         alert("Vehicle not registered!");
         return;
       }
-  
+
       if (vehicle.balance < tollFee) {
-        // Blacklist after 3 failed attempts
         const blacklistRes = await fetch("/api/toll/blacklist", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ vehicleNumber }),
         });
-  
+
         const blacklistData = await blacklistRes.json();
-        console.log("Blacklist Response:", blacklistData); // Debugging
         alert(blacklistData.message);
         return;
       }
-  
+
       // Deduct toll fee
       const deductRes = await fetch("/api/toll/deduct", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ vehicleNumber, amount: tollFee }),
       });
-  
+
       const deductData = await deductRes.json();
-      console.log("Deduction Response:", deductData); // Debugging
-  
-      // Check if API returned an error
       if (deductData.error) {
         alert(`Error: ${deductData.error}`);
         return;
       }
-  
+
       alert(deductData.message || "Unknown response");
-  
-      // Refresh the balance after deduction
-      await fetchVehicleDetails(validPlates); // Ensure state is updated after processing fee
+
+      // Update session transaction log
+      const sessionRef = doc(db, "toll_transactions", sessionId);
+      const sessionSnap = await getDoc(sessionRef);
+
+      if (sessionSnap.exists()) {
+        const sessionData = sessionSnap.data();
+        await updateDoc(sessionRef, {
+          totalVehicles: sessionData.totalVehicles + 1,
+          totalCollected: sessionData.totalCollected + tollFee,
+          transactions: arrayUnion({
+            vehicleNumber,
+            owner: vehicle.owner,
+            tollFee,
+            balanceBefore: vehicle.balance,
+            balanceAfter: vehicle.balance - tollFee,
+            status: "Paid",
+            time: Timestamp.now(),
+          }),
+        });
+      }
+
+      await fetchVehicleDetails(validPlates); // Refresh balance
     } catch (error) {
       console.error("Error processing toll:", error);
       alert("An error occurred while processing the toll.");
     }
   };
-
-
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">

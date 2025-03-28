@@ -1,11 +1,10 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword ,updateProfile} from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth, db } from "../firebaseConfig"; // Firebase authentication & Firestore
-
 export default function Register() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -47,6 +46,7 @@ export default function Register() {
       }
 
       // Store user details in Firestore
+      await updateProfile(user, { displayName: name });
       await setDoc(doc(db, "users", user.uid), {
         name,
         email,

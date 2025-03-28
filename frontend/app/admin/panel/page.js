@@ -9,7 +9,6 @@ export default function Home() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [outputVideoUrl, setOutputVideoUrl] = useState("");
   const [processingComplete, setProcessingComplete] = useState(false);
-
   const [liveFrame, setLiveFrame] = useState(null);
   const [detectedNumbers, setDetectedNumbers] = useState([]);
   const [validNumbers, setValidNumbers] = useState([]); // Store valid number plates
@@ -280,21 +279,28 @@ export default function Home() {
 
       {/* Collect Fee Button */}
       <div style={{ marginTop: "30px" }}>
-        <button
-          onClick={() => router.push("/admin/toll")}
-          style={{
-            padding: "12px 24px",
-            fontSize: "18px",
-            cursor: "pointer",
-            backgroundColor: "#ff6347",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            fontWeight: "bold",
-          }}
-        >
-          Collect Toll Fee
-        </button>
+      <button
+    onClick={() => router.push("/admin/toll")}
+    disabled={!processingComplete}
+    style={{
+      padding: "12px 24px",
+      fontSize: "18px",
+      cursor: processingComplete ? "pointer" : "not-allowed",
+      backgroundColor: processingComplete ? "#ff6347" : "#cccccc",
+      color: "white",
+      border: "none",
+      borderRadius: "5px",
+      fontWeight: "bold",
+      transition: "background-color 0.3s ease",
+      minWidth: "200px",
+      boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+      opacity: processingComplete ? 1 : 0.7
+    }}
+    aria-disabled={!processingComplete}
+    title={!processingComplete ? "Complete processing to enable this button" : ""}
+  >
+    Collect Toll Fee
+  </button>
       </div>
 
 
