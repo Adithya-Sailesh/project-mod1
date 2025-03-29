@@ -101,7 +101,9 @@ export default function Home() {
       videoRef.current.addEventListener("loadeddata", handleLoadedData);
 
       return () => {
-        videoRef.current.removeEventListener("loadeddata", handleLoadedData);
+        if (videoRef.current) { // 
+          videoRef.current.removeEventListener("loadeddata", handleLoadedData);
+        }
       };
     }
   }, [outputVideoUrl]);
