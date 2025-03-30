@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { db } from "../../firebaseConfig";
 import { collection, query, orderBy, onSnapshot, doc, setDoc, getDoc, updateDoc, arrayUnion, Timestamp } from "firebase/firestore";
 
@@ -10,27 +10,25 @@ export default function TollCollection() {
   const [loading, setLoading] = useState(true);
   const [tollFee, setTollFee] = useState(50);
   const [sessionId, setSessionId] = useState(null);
+  const sessionInitialized = useRef(false); // Ensures session is initialized only once
 
-  // Initialize a new session when a new video is processed
+  // Initialize a new session only once
   const initializeSession = async () => {
-    const newSessionId = Timestamp.now().toMillis().toString(); // Use server timestamp as session ID
+    if (sessionInitialized.current) return;
+    sessionInitialized.current = true;
+
+    const newSessionId = Timestamp.now().toMillis().toString();
 
     try {
       const sessionRef = doc(db, "toll_transactions", newSessionId);
-      const sessionSnap = await getDoc(sessionRef);
-
-      if (!sessionSnap.exists()) {
-        await setDoc(sessionRef, {
-          id: newSessionId,
-          timestamp: Timestamp.now(),
-          totalVehicles: 0,
-          totalCollected: 0,
-          transactions: []
-        });
-        console.log("New session created with ID:", newSessionId);
-      } else {
-        console.log("Existing session found:", newSessionId);
-      }
+      await setDoc(sessionRef, {
+        id: newSessionId,
+        timestamp: Timestamp.now(),
+        totalVehicles: 0,
+        totalCollected: 0,
+        transactions: [],
+      });
+      console.log("New session created with ID:", newSessionId);
 
       setSessionId(newSessionId);
     } catch (error) {
@@ -39,7 +37,7 @@ export default function TollCollection() {
   };
 
   useEffect(() => {
-    initializeSession();
+    initializeSession(); // Ensure this runs only once
 
     // Fetch valid plates in real-time
     const validPlatesCollection = collection(db, "valid_plates");
@@ -85,62 +83,51 @@ export default function TollCollection() {
     }
 
     try {
-      const vehicle = vehicleData[vehicleNumber];
-
-      if (!vehicle || vehicle.owner === "Not Registered") {
-        alert("Vehicle not registered!");
-        return;
-      }
-
-      if (vehicle.balance < tollFee) {
-        const blacklistRes = await fetch("/api/toll/blacklist", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ vehicleNumber }),
-        });
-
-        const blacklistData = await blacklistRes.json();
-        alert(blacklistData.message);
-        return;
-      }
-
-      // Deduct toll fee
-      const deductRes = await fetch("/api/toll/deduct", {
+      const res = await fetch("/api/toll/deduct", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ vehicleNumber, amount: tollFee }),
       });
 
-      const deductData = await deductRes.json();
-      if (deductData.error) {
-        alert(`Error: ${deductData.error}`);
+      const result = await res.json();
+      if (!res.ok) {
+        alert(result.error || "Transaction failed!");
         return;
       }
 
-      alert(deductData.message || "Unknown response");
-
-      // Update session transaction log
-      const sessionRef = doc(db, "toll_transactions", sessionId);
-      const sessionSnap = await getDoc(sessionRef);
-
-      if (sessionSnap.exists()) {
-        const sessionData = sessionSnap.data();
-        await updateDoc(sessionRef, {
-          totalVehicles: sessionData.totalVehicles + 1,
-          totalCollected: sessionData.totalCollected + tollFee,
-          transactions: arrayUnion({
-            vehicleNumber,
-            owner: vehicle.owner,
-            tollFee,
-            balanceBefore: vehicle.balance,
-            balanceAfter: vehicle.balance - tollFee,
-            status: "Paid",
-            time: Timestamp.now(),
-          }),
-        });
+      let message = "Toll processed successfully!";
+      if (result.newBalance < 0) {
+        message = `Insufficient balance! Double toll fee deducted, balance is now negative (-₹${Math.abs(result.newBalance)})`;
+      }
+      if (result.blacklisted) {
+        message += " 🚨 User has been blacklisted due to repeated insufficient funds.";
       }
 
-      await fetchVehicleDetails(validPlates); // Refresh balance
+      alert(message);
+
+      // ✅ Store transaction in Firestore
+      const transactionData = {
+        vehicleNumber,
+        tollFee: result.deductedAmount,
+        owner: vehicleData[vehicleNumber]?.owner || "Unknown",
+        balanceBefore: vehicleData[vehicleNumber]?.balance || 0,
+        balanceAfter: result.newBalance,
+        status: result.blacklisted ? "Blacklisted" : "Paid",
+        time: Timestamp.now(),
+      };
+
+      const sessionRef = doc(db, "toll_transactions", sessionId);
+      await updateDoc(sessionRef, {
+        totalVehicles: sessionId ? 1 : 0,
+        totalCollected: sessionId ? result.deductedAmount : 0,
+        transactions: arrayUnion(transactionData),
+      });
+
+      setVehicleData((prevData) => ({
+        ...prevData,
+        [vehicleNumber]: { ...prevData[vehicleNumber], balance: result.newBalance },
+      }));
+
     } catch (error) {
       console.error("Error processing toll:", error);
       alert("An error occurred while processing the toll.");
@@ -174,11 +161,14 @@ export default function TollCollection() {
                   <tr key={index} className="border-b">
                     <td className="p-3">{plate}</td>
                     <td className="p-3">{vehicle.owner}</td>
-                    <td className="p-3 text-green-600 font-bold">₹{vehicle.balance}</td>
+                    <td className={`p-3 font-bold ${vehicle.balance < 0 ? "text-red-600" : "text-green-600"}`}>
+                      ₹{vehicle.balance}
+                    </td>
                     <td className="p-3">
                       <button
-                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
                         onClick={() => processFee(plate)}
+                        disabled={vehicle.owner === "Not Registered"}
                       >
                         Process Fee
                       </button>

@@ -60,6 +60,12 @@ export default function Profile() {
               View Transaction History
             </button>
             <button
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              onClick={() => router.push("/user/recharge-history")}
+            >
+              View Recharge History
+            </button>
+            <button
               onClick={handleLogout}
               className="mt-6 bg-red-500 hover:bg-red-600 text-white py-2 px-6 rounded-lg shadow-lg transition duration-300"
             >

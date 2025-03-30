@@ -8,7 +8,6 @@ export async function POST(req) {
       return new Response(JSON.stringify({ error: "Invalid input" }), { status: 400 });
     }
 
-    // 🔍 Search for user with matching vehicle number
     const usersRef = collection(db, "users");
     const q = query(usersRef, where("vehicleNumber", "==", vehicleNumber));
     const querySnapshot = await getDocs(q);
@@ -17,22 +16,52 @@ export async function POST(req) {
       return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
     }
 
-    // Get first matching user document
     const userDoc = querySnapshot.docs[0];
     const userData = userDoc.data();
 
-    if (userData.balance < amount) {
-      return new Response(JSON.stringify({ error: "Insufficient balance" }), { status: 400 });
+    // 🚨 Check if user is already blacklisted
+    if (userData.blacklisted) {
+      return new Response(JSON.stringify({ error: "User is blacklisted. Toll processing denied." }), { status: 403 });
     }
 
-    // Deduct amount
-    await updateDoc(userDoc.ref, {
-      balance: userData.balance - amount,
-    });
+    let deductedAmount = amount;
+    let newBalance = userData.balance - amount;
+    let insufficientAttempts = userData.insufficientAttempts || 0;
 
-    return new Response(JSON.stringify({ message: "Toll fee deducted successfully" }), { status: 200 });
+    // 🚨 If balance is insufficient, deduct double the toll
+    if (userData.balance < amount) {
+      deductedAmount = 2 * amount;
+      newBalance = userData.balance - deductedAmount;
+      insufficientAttempts += 1;
+    } else {
+      insufficientAttempts = 0; // Reset count if balance was sufficient
+    }
+
+    let updateData = {
+      balance: newBalance,
+      lastTransaction: deductedAmount,
+      insufficientAttempts,
+    };
+
+    // 🚨 Blacklist user after 3 failed attempts
+    if (insufficientAttempts >= 3) {
+      updateData.blacklisted = true;
+    }
+
+    await updateDoc(userDoc.ref, updateData);
+
+    return new Response(
+      JSON.stringify({
+        deductedAmount,
+        newBalance,
+        blacklisted: updateData.blacklisted || false,
+        insufficientAttempts,
+      }),
+      { status: 200 }
+    );
+
   } catch (error) {
-    console.error("Error deducting toll fee:", error);
+    console.error("Error processing toll fee:", error);
     return new Response(JSON.stringify({ error: "Internal server error" }), { status: 500 });
   }
 }
