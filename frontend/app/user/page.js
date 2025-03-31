@@ -16,11 +16,19 @@ export default function Profile() {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
           setUserData(userDoc.data());
+          
         }
       }
+      
     };
     fetchUserData();
   }, []);
+
+  useEffect(() => {
+    if (userData && userData.balance < 100) {
+      alert("Your balance is low, please recharge.");
+    }
+  }, [userData]);
 
   const handleLogout = async () => {
     await auth.signOut();
