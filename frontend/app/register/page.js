@@ -144,7 +144,7 @@ export default function Register() {
                 required
                 className="hidden bg-transparent mb-4 px-2 py-1 rounded-md border-[0.5px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
-              <label for="vehicleImage" className="cursor-pointer px-2 py-2 rounded-md border-[0.5px] hover:border-blue-500 text-slate-400">Add Vehicle Image</label>
+              <label htmlFor="vehicleImage" className="cursor-pointer px-2 py-2 rounded-md border-[0.5px] hover:border-blue-500 text-slate-400">Add Vehicle Image</label>
               {/* Image Preview */}
               {previewImage && (
                 <div className="mt-4">
