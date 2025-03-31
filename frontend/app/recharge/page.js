@@ -27,8 +27,6 @@ export default function Recharge() {
   }, []);
 
   const handleRecharge = async () => {
-    
-
     if (!amount || amount <= 0) {
       alert("Enter a valid amount");
       return;
@@ -70,23 +68,23 @@ export default function Recharge() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-      <h1 className="text-4xl font-bold text-gray-900 mb-6">Recharge Wallet</h1>
+    <div className="w-fit h-fit flex flex-col items-center justify-center mt-20 px-20 py-10 rounded-lg border-[0.5px] text-white">
+      <h1 className="text-3xl mb-4">Recharge Wallet</h1>
 
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-        <p className="text-xl mb-4 text-gray-700">Current Balance: ₹{balance}</p>
+      <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
+        <p className="text-xl mb-4 text-gray-300">Current Balance: <span className="text-green-400">₹{balance}</span></p>
 
         <input
           type="number"
           placeholder="Enter amount"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="text-blue-500 w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+          className="text-white bg-gray-700 w-full p-3 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
         />
 
         <button
           onClick={handleRecharge}
-          className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors"
+          className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
           disabled={loading}
         >
           {loading ? "Processing..." : "Recharge"}

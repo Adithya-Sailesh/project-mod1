@@ -67,39 +67,39 @@ export default function TransactionHistory() {
   }, [user]);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Toll Transaction History</h1>
+    <div className="w-fit h-fit flex flex-col items-center justify-center mt-20 px-20 py-10 rounded-lg border-[0.5px] text-white">
+      <h1 className="text-3xl mb-4">Toll Transaction History</h1>
 
       {loading ? (
-        <p className="text-center text-gray-600">Loading transactions...</p>
+        <p className="text-center text-gray-400">Loading transactions...</p>
       ) : transactions.length === 0 ? (
         <p className="text-center text-red-500">No transactions found.</p>
       ) : (
-        <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+        <div className="w-full max-w-4xl bg-gray-800 p-6 rounded-lg shadow-lg">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="bg-gray-200">
-                <th className="p-3 text-left text-gray-800">Vehicle Number</th>
-                <th className="p-3 text-left text-gray-800">Toll Fee</th>
-                <th className="p-3 text-left text-gray-800">Balance Before</th>
-                <th className="p-3 text-left text-gray-800">Balance After</th>
-                <th className="p-3 text-left text-gray-800">Status</th>
-                <th className="p-3 text-left text-gray-800">Timestamp</th>
+              <tr className="bg-gray-700">
+                <th className="p-3 text-left text-white">Vehicle Number</th>
+                <th className="p-3 text-left text-white">Toll Fee</th>
+                <th className="p-3 text-left text-white">Balance Before</th>
+                <th className="p-3 text-left text-white">Balance After</th>
+                <th className="p-3 text-left text-white">Status</th>
+                <th className="p-3 text-left text-white">Timestamp</th>
               </tr>
             </thead>
             <tbody>
               {transactions.map((txn, index) => (
-                <tr key={index} className="border-b">
-                  <td className="p-3 text-blue-500">{txn.vehicleNumber}</td>
-                  <td className="p-3 text-green-600 font-bold">₹{txn.tollFee}</td>
-                  <td className="p-3 text-gray-600">₹{txn.balanceBefore}</td>
-                  <td className="p-3 text-gray-600">₹{txn.balanceAfter}</td>
-                  <td className={`p-3 font-bold ${txn.status === "Paid" ? "text-green-600" : "text-red-600"}`}>
+                <tr key={index} className="border-b border-gray-600">
+                  <td className="p-3 text-blue-400">{txn.vehicleNumber}</td>
+                  <td className="p-3 text-green-400 font-bold">₹{txn.tollFee}</td>
+                  <td className="p-3 text-gray-300">₹{txn.balanceBefore}</td>
+                  <td className="p-3 text-gray-300">₹{txn.balanceAfter}</td>
+                  <td className={`p-3 font-bold ${txn.status === "Paid" ? "text-green-400" : "text-red-400"}`}>
                     {txn.status}
                   </td>
-                  <td className="p-3 text-gray-500">
-                  {txn.time?.toDate ? txn.time.toDate().toLocaleString() : "N/A"}
-                </td>
+                  <td className="p-3 text-gray-400">
+                    {txn.time?.toDate ? txn.time.toDate().toLocaleString() : "N/A"}
+                  </td>
                 </tr>
               ))}
             </tbody>

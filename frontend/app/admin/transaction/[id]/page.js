@@ -65,14 +65,14 @@ export default function TransactionDetailsPage() {
   if (!transaction) return <p className="text-center mt-10 text-red-500">Transaction not found.</p>;
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-4">Transaction Details</h1>
+    <div className="flex items-center justify-center min-h-screen px-6">
+      <div className="w-fit h-fit flex flex-col px-10 py-10 rounded-lg border-[0.5px] text-white">
+        <h1 className="text-3xl mb-6">Transaction Details</h1>
 
         <div className="border-b pb-4 mb-4">
-          <p className="text-blue-600"><strong className="text-gray-600">Transaction ID:</strong> {transaction.id}</p>
-          <p className="text-blue-600"><strong className="text-gray-600">Total Collected:</strong> ₹{transaction.totalCollected}</p>
-          <p className="text-blue-600"><strong className="text-gray-600">Total Vehicles:</strong> {transaction.totalVehicles}</p>
+          <p className="text-gray-400"><strong className="text-white">Transaction ID:</strong> {transaction.id}</p>
+          <p className="text-gray-400"><strong className="text-white">Total Collected:</strong> ₹{transaction.totalCollected}</p>
+          <p className="text-gray-400"><strong className="text-white">Total Vehicles:</strong> {transaction.totalVehicles}</p>
         </div>
 
         {/* ✅ Export Button */}
@@ -83,23 +83,23 @@ export default function TransactionDetailsPage() {
           📂 Export to Excel
         </button>
 
-        <h2 className="text-xl font-semibold mb-3 text-blue-500">Transactions</h2>
-        <ul className="border rounded-lg p-4 bg-gray-50">
+        <h2 className="text-xl font-semibold mb-3 text-gray-400">Transactions</h2>
+        <ul className="border rounded-lg p-4 bg-gray-800">
           {transaction.transactions?.map((tx, index) => (
             <li key={index} className="p-3 border-b last:border-0">
-              <p className="text-blue-600"><strong className="text-gray-600">Owner:</strong> {tx.owner}</p>
-              <p className="text-blue-600"><strong className="text-gray-600">Vehicle:</strong> {tx.vehicleNumber}</p>
-              <p className="text-blue-600"><strong className="text-gray-600">Status:</strong> 
+              <p className="text-gray-400"><strong className="text-white">Owner:</strong> {tx.owner}</p>
+              <p className="text-gray-400"><strong className="text-white">Vehicle:</strong> {tx.vehicleNumber}</p>
+              <p className="text-gray-400"><strong className="text-white">Status:</strong> 
                 <span className={`ml-2 px-2 py-1 text-sm font-medium rounded-full ${
                   tx.status === "Paid" ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800"
                 }`}>
                   {tx.status}
                 </span>
               </p>
-              <p className="text-blue-600"><strong className="text-gray-600">Toll Fee:</strong> ₹{tx.tollFee}</p>
-              <p className="text-blue-600"><strong className="text-gray-600">Balance Before:</strong> ₹{tx.balanceBefore ?? "N/A"}</p>
-              <p className="text-blue-600"><strong className="text-gray-600">Balance After:</strong> ₹{tx.balanceAfter ?? "N/A"}</p>
-              <p className="text-blue-600"><strong className="text-gray-600">Time:</strong> {new Date(tx.time.seconds * 1000).toLocaleString()}</p>
+              <p className="text-gray-400"><strong className="text-white">Toll Fee:</strong> ₹{tx.tollFee}</p>
+              <p className="text-gray-400"><strong className="text-white">Balance Before:</strong> ₹{tx.balanceBefore ?? "N/A"}</p>
+              <p className="text-gray-400"><strong className="text-white">Balance After:</strong> ₹{tx.balanceAfter ?? "N/A"}</p>
+              <p className="text-gray-400"><strong className="text-white">Time:</strong> {new Date(tx.time.seconds * 1000).toLocaleString()}</p>
             </li>
           ))}
         </ul>

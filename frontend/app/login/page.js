@@ -36,16 +36,23 @@ export default function Login() {
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h1 style={{fontSize:'50px'}}>Auto-iD</h1>
-      <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", alignItems: "center",colour:"black" }}>
+    <div className="w-fit h-fit flex-start mt-20 px-20 py-10 rounded-lg border-[0.5px] text-white">
+      <div className="w-full"><h1 className="text-3xl">Sign In</h1></div>
+      {/* Register Button */}
+      <p className="mr-auto text-sm">Don't have an account? <button
+        onClick={() => router.push("/register")}
+        className="text-blue-500 hover:underline hover:underline-offset-2"
+      >
+        Register
+      </button></p>
+      <div className="flex-center mt-8 mb-10"><form onSubmit={handleLogin} className="flex-center">
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          style={{ padding: "10px", marginBottom: "10px", width: "250px", color: "black" }}
+          className="bg-transparent mb-4 px-2 py-1 rounded-md bg-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
         />
         <input
           type="password"
@@ -53,22 +60,13 @@ export default function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          style={{ padding: "10px", marginBottom: "10px", width: "250px", color: "black" }}
+          className="bg-transparent px-2 py-1 rounded-md bg-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
         />
         {error && <p style={{ color: "red" }}>{error}</p>}
-        <button type="submit" style={{ padding: "10px 20px", backgroundColor: "#0070f3", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>
+        <button type="submit" className="bg-blue-500 text-white px-10 py-2 rounded-md hover:bg-blue-600 mt-6" >
           Login
         </button>
-      </form>
-      
-      {/* Register Button */}
-      <p>Don't have an account?</p>
-      <button
-        onClick={() => router.push("/register")}
-        style={{ padding: "10px 20px", marginTop: "10px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}
-      >
-        Register
-      </button>
+      </form></div>      
     </div>
   );
 }

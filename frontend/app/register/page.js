@@ -70,115 +70,111 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-      {/* Stylish "Register" Heading */}
-      <h1 className="text-6xl font-bold text-gray-900 mb-8 animate-bounce">
-        Register
-      </h1>
+    <div className="w-fit h-fit flex-start mt-20 px-20 py-10 rounded-lg border-[0.5px] text-white">
+      <div className="w-full"><h1 className="text-3xl">Register</h1></div>
+      <p className="mr-auto text-sm">Already have an account? <button
+        onClick={() => router.push("/login")}
+        className="text-blue-500 hover:underline hover:underline-offset-2"
+      >
+        Sign In
+      </button></p>
 
       {/* Registration Form */}
-      <form onSubmit={handleRegister} className="bg-white p-8 rounded-lg shadow-md w-full max-w-md" style={{ color: "black" }}>
-        <div className="space-y-6">
-          {/* Full Name Input */}
-          <input
-            type="text"
-            placeholder="Full Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-
-          {/* Email Input */}
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-
-          {/* Password Input */}
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-
-          {/* Vehicle Details Input */}
-          <input
-            type="text"
-            placeholder="Vehicle Details (e.g., Red Honda Civic)"
-            value={vehicle}
-            onChange={(e) => setVehicle(e.target.value)}
-            required
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-
-          {/* Vehicle Number Input */}
-          <input
-            type="text"
-            placeholder="Vehicle Number (e.g., KL-07-XXXX)"
-            value={vehicleNumber}
-            onChange={(e) => setVehicleNumber(e.target.value)}
-            required
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-
-          {/* Vehicle Image Upload */}
-          <div className="space-y-2">
-            <label className="block text-gray-700 font-medium">Add Vehicle Image</label>
+      <div className="flex-center mt-8 mb-10">
+        <form onSubmit={handleRegister} className="flex-center w-fit">
+          
+            {/* Full Name Input */}
             <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
+              type="text"
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="bg-transparent mb-4 px-2 py-1 rounded-md bg-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
-            {/* Image Preview */}
-            {previewImage && (
-              <div className="mt-4">
-                <p className="text-gray-600">Preview:</p>
-                <img
-                  src={previewImage}
-                  alt="Vehicle Preview"
-                  className="w-32 h-32 object-cover rounded-lg shadow-md border border-gray-300"
-                />
-              </div>
-            )}
-          </div>
 
-          {/* Error Message */}
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+            {/* Email Input */}
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="bg-transparent mb-4 px-2 py-1 rounded-md bg-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            />
 
-          {/* Register Button with Loading Spinner */}
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
-            disabled={loading}
-          >
-            {loading ? (
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-            ) : (
-              "Register"
-            )}
-          </button>
-        </div>
-      </form>
+            {/* Password Input */}
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="bg-transparent mb-4 px-2 py-1 rounded-md bg-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            />
 
-      {/* Login Link */}
-      <div className="mt-6 text-center">
-        <p className="text-gray-600">Already have an account?</p>
-        <button
-          onClick={() => router.push("/login")}
-          className="mt-2 bg-green-600 text-white p-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
-        >
-          Login
-        </button>
+            {/* Vehicle Details Input */}
+            <input
+              type="text"
+              placeholder="Vehicle Details"
+              value={vehicle}
+              onChange={(e) => setVehicle(e.target.value)}
+              required
+              className="bg-transparent mb-4 px-2 py-1 rounded-md bg-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            />
+
+            {/* Vehicle Number Input */}
+            <input
+              type="text"
+              placeholder="Vehicle Number"
+              value={vehicleNumber}
+              onChange={(e) => setVehicleNumber(e.target.value)}
+              required
+              className="bg-transparent mb-4 px-2 py-1 rounded-md bg-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            />
+
+            {/* Vehicle Image Upload */}
+            <div className="w-full mt-1">
+              
+              <input
+                type="file"
+                accept="image/*"
+                id="vehicleImage"
+                onChange={handleImageChange}
+                required
+                className="hidden bg-transparent mb-4 px-2 py-1 rounded-md border-[0.5px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              />
+              <label for="vehicleImage" className="cursor-pointer px-2 py-2 rounded-md border-[0.5px] hover:border-blue-500 text-slate-400">Add Vehicle Image</label>
+              {/* Image Preview */}
+              {previewImage && (
+                <div className="mt-4">
+                  <p className="text-gray-600">Preview:</p>
+                  <img
+                    src={previewImage}
+                    alt="Vehicle Preview"
+                    className="w-32 h-32 object-cover rounded-lg shadow-md border border-gray-300"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Error Message */}
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+
+            {/* Register Button with Loading Spinner */}
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-10 py-2 rounded-md hover:bg-blue-600 mt-8"
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+              ) : (
+                "Register"
+              )}
+            </button>
+          
+        </form>
       </div>
     </div>
   );
