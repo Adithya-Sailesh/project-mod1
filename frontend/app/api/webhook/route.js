@@ -19,8 +19,8 @@ export async function POST(req) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
-    const userId = session.metadata.userId;  // Retrieve user ID
-    const amount = session.amount_total / 100;  // Convert from cents to rupees
+    const userId = session.metadata.userId;  //  user ID
+    const amount = session.amount_total / 100;  // cent to rupees
 
     try {
       const rechargeRef = doc(db, "recharge_transactions", session.id);

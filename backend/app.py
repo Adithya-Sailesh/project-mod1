@@ -11,7 +11,7 @@ import pytesseract
 import logging
 import uuid
 import re  # For number plate validation
-
+import requests
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
@@ -23,6 +23,13 @@ app.mount("/outputs", StaticFiles(directory="outputs"), name="outputs")
 # Load Roboflow model
 API_KEY = os.getenv("ROBOFLOW_API_KEY", "ru9Ag6REQG3256Iqf4Km")
 model = get_model(model_id="number_plate-4v9tn/1", api_key=API_KEY)
+
+
+
+
+
+
+
 
 # WebSocket connection
 connected_clients = set()
